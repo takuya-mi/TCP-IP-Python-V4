@@ -2753,6 +2753,7 @@ class DobotApiFeedBack(DobotApi):
         super().__init__(ip, port, *args)
         self.__MyType = []
         self.__Lock = threading.Lock()
+        self.__event = threading.Event()
         feed_thread = threading.Thread(target=self.recvFeedData)  # 机器状态反馈线程 Robot status feedback thread
         feed_thread.daemon = True
         feed_thread.start()
@@ -2764,7 +2765,7 @@ class DobotApiFeedBack(DobotApi):
         Receive real-time feedback
         """
         hasRead = 0
-        while True:
+        while not self.__event.is_set():
             data = bytes()
             while hasRead < 1440:
                 try:
